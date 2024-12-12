@@ -4,9 +4,6 @@ import seaborn as sns
 from textblob import TextBlob
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.decomposition import LatentDirichletAllocation
-import nltk
-from nltk.corpus import stopwords
-from nltk.tokenize import word_tokenize
 
 
 class FinancialAnalysis:
