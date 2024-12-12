@@ -135,3 +135,61 @@ class FinancialAnalysis:
         
         return self
 
+    def descriptive_statistics(self):
+        """Generate descriptive statistics and visualizations for the dataset"""
+        # Create figure for subplots
+        fig = plt.figure(figsize=(15, 10))
+
+        # Calculate publisher and day counts
+        publisher_counts = self.df['publisher'].value_counts()
+        day_counts = self.df['day_of_week'].value_counts()
+
+        # 1. Headline Length Distribution
+        plt.subplot(2, 2, 1)
+        sns.histplot(data=self.df, x='headline_length', bins=50)
+        plt.title('Distribution of Headline Lengths')
+        plt.xlabel('Number of Characters')
+        plt.ylabel('Count')
+
+        # 2. Top Publishers Bar Chart
+        plt.subplot(2, 2, 2)
+        publisher_counts.head(10).plot(kind='bar')
+        plt.title('Top 10 Publishers by Article Count')
+        plt.xticks(rotation=45, ha='right')
+        plt.ylabel('Number of Articles')
+
+        # 3. Articles by Day of Week
+        plt.subplot(2, 2, 3)
+        day_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+        day_counts_ordered = day_counts.reindex(day_order)
+        day_counts_ordered.plot(kind='bar')
+        plt.title('Article Distribution by Day of Week')
+        plt.xticks(rotation=45, ha='right')
+        plt.ylabel('Number of Articles')
+
+        # 4. Monthly Article Trends
+        plt.subplot(2, 2, 4)
+        monthly_counts = self.df.groupby([self.df['date'].dt.year, self.df['date'].dt.month]).size()
+        monthly_counts.plot(kind='line')
+        plt.title('Monthly Article Count Over Time')
+        plt.xlabel('Time')
+        plt.ylabel('Number of Articles')
+
+        plt.tight_layout()
+        plt.show()
+
+        # Print detailed statistics
+        print("\nHeadline Length Statistics:")
+        print(f"Average length: {self.df['headline_length'].mean():.1f} characters")
+        print(f"Median length: {self.df['headline_length'].median():.1f} characters")
+        print(f"Most common length: {self.df['headline_length'].mode().iloc[0]} characters")
+
+        print("\nPublication Patterns:")
+        print(f"Most active day: {day_counts.index[0]} ({day_counts.iloc[0]} articles)")
+        print(f"Least active day: {day_counts.index[-1]} ({day_counts.iloc[-1]} articles)")
+
+        print("\nPublisher Diversity:")
+        print(f"Total number of unique publishers: {self.df['publisher'].nunique()}")
+        print(f"Top publisher: {publisher_counts.index[0]} ({publisher_counts.iloc[0]} articles)")
+
+        return self
