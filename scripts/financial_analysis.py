@@ -1,6 +1,13 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+from textblob import TextBlob
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.decomposition import LatentDirichletAllocation
+import nltk
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
+
 
 class FinancialAnalysis:
     def __init__(self, df=None):
@@ -191,5 +198,129 @@ class FinancialAnalysis:
         print("\nPublisher Diversity:")
         print(f"Total number of unique publishers: {self.df['publisher'].nunique()}")
         print(f"Top publisher: {publisher_counts.index[0]} ({publisher_counts.iloc[0]} articles)")
+
+        return self
+
+    def analyze_sentiment(self):
+        """
+        Performs sentiment analysis on news headlines and visualizes the results
+        """
+        print("\nPerforming Sentiment Analysis...")
+        
+        # Calculate sentiment scores and categories
+        self.df['sentiment'] = self.df['headline'].apply(lambda x: TextBlob(x).sentiment.polarity)
+        self.df['sentiment_category'] = pd.cut(self.df['sentiment'], 
+            bins=[-1, -0.1, 0.1, 1], 
+            labels=['Negative', 'Neutral', 'Positive'])
+
+        # Calculate and display sentiment distribution
+        sentiment_dist = self.df['sentiment_category'].value_counts()
+        print("\nSentiment Distribution:")
+        for category, count in sentiment_dist.items():
+            percentage = (count/len(self.df))*100
+            print(f"{category}: {percentage:.1f}%")
+
+        # Visualize sentiment distribution
+        plt.figure(figsize=(10, 6))
+        sns.countplot(data=self.df, x='sentiment_category', order=['Negative', 'Neutral', 'Positive'])
+        plt.title('Distribution of Headline Sentiments')
+        plt.xlabel('Sentiment Category')
+        plt.ylabel('Count')
+        plt.show()
+        
+        # Convert dates to datetime and preserve timezone
+        self.df['date'] = pd.to_datetime(self.df['date'])
+        # Group by month while preserving timezone
+        monthly_sentiment = self.df.groupby(self.df['date'].dt.strftime('%Y-%m'))['sentiment'].mean()
+        plt.figure(figsize=(12, 6))
+        monthly_sentiment.plot(kind='line')
+        plt.title('Average Sentiment Score Over Time')
+        plt.xlabel('Month')
+        plt.ylabel('Average Sentiment Score')
+        plt.grid(True)
+        plt.show()
+
+        return self
+
+    def extract_topics(self):
+        """
+        Performs topic modeling using LDA and visualizes topic distributions
+        """
+        print("\nPerforming Topic Modeling...")
+
+        # Prepare text data
+        vectorizer = CountVectorizer(max_features=1000, stop_words='english')
+        doc_term_matrix = vectorizer.fit_transform(self.df['headline'])
+
+        # Apply LDA with optimal parameters
+        n_topics = 5
+        lda = LatentDirichletAllocation(
+            n_components=n_topics,
+            max_iter=10,
+            learning_method='online',
+            random_state=42,
+            n_jobs=-1
+        )
+        topic_results = lda.fit_transform(doc_term_matrix)
+        print(topic_results)
+
+        # Extract and visualize top terms for each topic
+        feature_names = vectorizer.get_feature_names_out()
+        n_top_words = 10
+        
+        fig, axes = plt.subplots(2, 3, figsize=(15, 10))
+        axes = axes.ravel()
+        
+        for topic_idx, topic in enumerate(lda.components_):
+            if topic_idx < n_topics:
+                top_words_idx = topic.argsort()[:-n_top_words-1:-1]
+                top_words = [feature_names[i] for i in top_words_idx]
+                top_weights = [topic[i] for i in top_words_idx]
+                
+                axes[topic_idx].barh(top_words, top_weights)
+                axes[topic_idx].set_title(f'Topic {topic_idx + 1}')
+                axes[topic_idx].invert_yaxis()
+        
+        plt.tight_layout()
+        plt.show()
+
+        return self
+
+    def analyze_key_phrases(self):
+        """
+        Analyzes and visualizes frequency of common financial phrases in headlines
+        """
+        print("\nAnalyzing Key Financial Phrases...")
+
+        financial_phrases = [
+            'price target', 'upgrade', 'downgrade', 'earnings', 
+            'FDA approval', 'merger', 'acquisition', 'IPO',
+            'stock split', 'dividend', 'guidance', 'analyst rating'
+        ]
+        
+        # Calculate phrase frequencies
+        phrase_counts = {}
+        for phrase in financial_phrases:
+            mask = self.df['headline'].str.lower().str.contains(phrase)
+            count = mask.sum()
+            phrase_counts[phrase] = count
+
+        # Create DataFrame for visualization
+        phrase_df = pd.DataFrame.from_dict(phrase_counts, orient='index', columns=['count'])
+        phrase_df['percentage'] = (phrase_df['count'] / len(self.df)) * 100
+        phrase_df = phrase_df.sort_values('count', ascending=True)
+
+        # Print statistics
+        print("\nCommon Financial Phrases Frequency:")
+        for phrase, row in phrase_df.iterrows():
+            print(f"{phrase}: {row['count']} occurrences ({row['percentage']:.1f}%)")
+
+        # Visualize phrase frequencies
+        plt.figure(figsize=(12, 6))
+        phrase_df['count'].plot(kind='barh')
+        plt.title('Frequency of Common Financial Phrases')
+        plt.xlabel('Number of Occurrences')
+        plt.tight_layout()
+        plt.show()
 
         return self
