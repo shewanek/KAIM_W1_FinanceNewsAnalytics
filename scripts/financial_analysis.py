@@ -324,3 +324,115 @@ class FinancialAnalysis:
         plt.show()
 
         return self
+    
+    def analyze_publication_patterns(self):
+        """
+        Analyzes and visualizes temporal patterns in news publication frequency
+        """
+        print("\nAnalyzing Publication Patterns...")
+
+        # Convert date column to datetime if not already
+        self.df['date'] = pd.to_datetime(self.df['date'])
+
+        # Daily publication frequency
+        daily_pubs = self.df.groupby(self.df['date'].dt.date).size()
+        
+        # Hourly distribution
+        hourly_pubs = self.df.groupby(self.df['date'].dt.hour).size()
+        
+        # Day of week distribution
+        dow_pubs = self.df.groupby(self.df['date'].dt.day_name()).size()
+        
+        # Create subplots
+        fig, axes = plt.subplots(3, 1, figsize=(12, 12))
+        
+        # Plot daily trend
+        daily_pubs.plot(ax=axes[0])
+        axes[0].set_title('Daily Publication Frequency')
+        axes[0].set_xlabel('Date')
+        axes[0].set_ylabel('Number of Articles')
+        
+        # Plot hourly distribution
+        hourly_pubs.plot(kind='bar', ax=axes[1])
+        axes[1].set_title('Hourly Publication Distribution')
+        axes[1].set_xlabel('Hour of Day')
+        axes[1].set_ylabel('Number of Articles')
+        
+        # Plot day of week distribution
+        dow_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+        dow_pubs = dow_pubs.reindex(dow_order)
+        dow_pubs.plot(kind='bar', ax=axes[2])
+        axes[2].set_title('Day of Week Publication Distribution')
+        axes[2].set_xlabel('Day of Week')
+        axes[2].set_ylabel('Number of Articles')
+        
+        plt.tight_layout()
+        plt.show()
+        
+        # Print summary statistics
+        print("\nPublication Pattern Statistics:")
+        print(f"Average daily publications: {daily_pubs.mean():.1f}")
+        print(f"Peak publishing hour: {hourly_pubs.idxmax()}:00")
+        print(f"Most active day: {dow_pubs.idxmax()}")
+        print(f"Least active day: {dow_pubs.idxmin()}")
+        
+        return self
+    
+    def analyze_publishers(self):
+        """
+        Analyzes publisher distribution and patterns in the dataset.
+        """
+        print("\nAnalyzing Publisher Patterns...")
+
+        # Get publisher frequency counts
+        pub_counts = self.df['publisher'].value_counts()
+
+        # Print top publishers
+        print("\nTop 10 Publishers by Article Count:")
+        print(pub_counts.head(10))
+
+        # Extract email domains if present
+        def extract_domain(publisher):
+            if '@' in str(publisher):
+                return publisher.split('@')[1]
+            return publisher
+
+        self.df['domain'] = self.df['publisher'].apply(extract_domain)
+        domain_counts = self.df['domain'].value_counts()
+
+        # Create visualizations
+        fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 12))
+
+        # Plot top 15 publishers
+        pub_counts.head(15).plot(kind='bar', ax=ax1)
+        ax1.set_title('Top 15 Publishers by Article Count')
+        ax1.set_xlabel('Publisher')
+        ax1.set_ylabel('Number of Articles')
+        plt.xticks(rotation=45, ha='right')
+
+        # Plot top 15 domains
+        domain_counts.head(15).plot(kind='bar', ax=ax2)
+        ax2.set_title('Top 15 Publisher Domains')
+        ax2.set_xlabel('Domain')
+        ax2.set_ylabel('Number of Articles')
+        plt.xticks(rotation=45, ha='right')
+
+        plt.tight_layout()
+        plt.show()
+
+        # Calculate and print statistics
+        print("\nPublisher Statistics:")
+        print(f"Total unique publishers: {len(pub_counts)}")
+        print(f"Total unique domains: {len(domain_counts)}")
+        print(f"\nTop publishing domain: {domain_counts.index[0]} ({domain_counts.iloc[0]} articles)")
+        
+        # Analyze content patterns by top publishers
+        top_publishers = pub_counts.head(5).index
+        print("\nContent Analysis for Top 5 Publishers:")
+        for publisher in top_publishers:
+            pub_df = self.df[self.df['publisher'] == publisher]
+            print(f"\n{publisher}:")
+            print(f"Total articles: {len(pub_df)}")
+            print(f"Average headline length: {pub_df['headline'].str.len().mean():.1f} characters")
+            
+        return self
