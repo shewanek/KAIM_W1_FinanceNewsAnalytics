@@ -227,4 +227,23 @@ class StockEDA:
         plt.tight_layout()
         plt.show()
 
-    
+    def analyze_stock(self, stock_symbol=None):
+        """Perform comprehensive analysis for a given stock
+
+        Args:
+            stock_symbol (str, optional): Stock symbol to analyze
+
+        Returns:
+            tuple: (DataFrame with technical indicators, dict with financial metrics)
+        """
+        # Calculate all indicators
+        technical_data = self.calculate_technical_indicators()
+        financial_metrics = self.calculate_financial_metrics()
+
+        # Create visualizations
+        self.plot_price_and_indicators(stock_symbol)
+
+        if stock_symbol:
+            technical_data = technical_data[technical_data['stock_symbol'] == stock_symbol]
+
+        return technical_data, financial_metrics
