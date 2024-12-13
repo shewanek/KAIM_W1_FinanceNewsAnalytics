@@ -44,10 +44,6 @@ The Financial News and Stock Price Integration Dataset (FNSPID) contains:
 
 ## Task 2: Stock Price Analysis
 
-### Data Collection
-- Gathered historical stock price data for analyzed tickers
-- OHLCV (Open, High, Low, Close, Volume) data at daily frequency
-- Time period aligned with news dataset
 
 ### Analysis Components
 1. Technical Analysis
@@ -62,11 +58,7 @@ The Financial News and Stock Price Integration Dataset (FNSPID) contains:
    - Correlation studies
    - Anomaly detection
 
-3. Integration with News Data
-   - Price movements around news events
-   - Volume spikes relative to news flow
-   - Sentiment correlation with returns
-   - Lead/lag relationship analysis
+
 
 ### Key Findings
 - Significant price movements often preceded by news sentiment shifts
