@@ -4,6 +4,7 @@ import seaborn as sns
 from textblob import TextBlob
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.decomposition import LatentDirichletAllocation
+import os
 
 
 class FinancialAnalysis:
@@ -74,7 +75,7 @@ class FinancialAnalysis:
             self.df = self.df.drop('Unnamed: 0', axis=1)
 
         # Convert and standardize date format
-        self.df['date'] = pd.to_datetime(self.df['date'], errors='coerce')
+        self.df['date'] = pd.to_datetime(self.df['date'], format='ISO8601')
         self.df = self.df.dropna(subset=['date'])  # Drop rows with invalid dates
 
         # Clean text fields
@@ -432,4 +433,15 @@ class FinancialAnalysis:
             print(f"Total articles: {len(pub_df)}")
             print(f"Average headline length: {pub_df['headline'].str.len().mean():.1f} characters")
 
+        return self
+
+    def save_to_csv(self, output_path="../data/processed_financial_news.csv"):
+        """
+        Save the processed DataFrame to a CSV file
+        """
+        # Ensure the data directory exists
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        # Save the dataframe to a CSV file
+        self.df.to_csv(output_path, index=False)
+        print(f"Data saved to {output_path}")
         return self
