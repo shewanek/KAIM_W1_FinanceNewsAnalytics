@@ -178,4 +178,53 @@ class StockEDA:
 
         return metrics
 
+    def plot_price_and_indicators(self, stock_symbol=None):
+        """Create visualizations of price data and technical indicators
+
+        Args:
+            stock_symbol (str, optional): Filter data for specific stock symbol
+        """
+        if self.data is None:
+            raise ValueError("No data loaded. Call load_data() first.")
+
+        if stock_symbol:
+            plot_data = self.data[self.data['stock_symbol'] == stock_symbol].copy()
+        else:
+            plot_data = self.data.copy()
+
+        # Create figure with secondary y-axis
+        fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(15, 15), height_ratios=[3, 1, 1])
+
+        # Plot price and moving averages
+        ax1.plot(plot_data['Date'], plot_data['Close'], label='Close Price')
+        ax1.plot(plot_data['Date'], plot_data['SMA_20'], label='20-day SMA')
+        ax1.plot(plot_data['Date'], plot_data['SMA_50'], label='50-day SMA')
+        ax1.plot(plot_data['Date'], plot_data['BB_Upper'], 'g--', label='BB Upper')
+        ax1.plot(plot_data['Date'], plot_data['BB_Lower'], 'r--', label='BB Lower')
+        ax1.set_title('Stock Price with Technical Indicators')
+        ax1.set_xlabel('Date')
+        ax1.set_ylabel('Price')
+        # ax1.legend()
+        ax1.grid(True)
+
+        # Plot MACD
+        ax2.plot(plot_data['Date'], plot_data['MACD'], label='MACD')
+        ax2.plot(plot_data['Date'], plot_data['MACD_Signal'], label='Signal Line')
+        ax2.bar(plot_data['Date'], plot_data['MACD_Hist'], label='MACD Histogram')
+        ax2.set_title('MACD')
+        # ax2.legend()
+        ax2.grid(True)
+
+        # Plot RSI
+        ax3.plot(plot_data['Date'], plot_data['RSI'], label='RSI')
+        ax3.axhline(y=70, color='r', linestyle='--')
+        ax3.axhline(y=30, color='g', linestyle='--')
+        ax3.set_title('RSI')
+        ax3.set_ylabel('RSI')
+        # ax3.legend()
+        ax3.grid(True)
+
+        plt.tight_layout()
+        plt.show()
+
     
