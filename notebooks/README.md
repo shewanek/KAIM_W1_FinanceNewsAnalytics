@@ -1,8 +1,10 @@
+
 # Financial News Analytics Project
 
 This repository contains analysis of financial news sentiment and stock market data using Python, focusing on exploratory data analysis of news data and quantitative analysis of stock prices.
 
-## Project Structure
+
+## Notebooks Overview
 
 ### 1. eda.ipynb
 Task 1: News Data Analysis
@@ -22,6 +24,7 @@ Task 1: News Data Analysis
   - Top contributing publishers
   - Content type analysis by publisher
   - Domain/organization analysis
+
 
 ### 2. quantitative_eda.ipynb
 Task 2: Stock Price Analysis
@@ -62,3 +65,10 @@ Task 2: Stock Price Analysis
 - Technical and quantitative market analysis
 - Data visualizations and insights
 - Trading implications and patterns
+=======
+
+## Requirements
+- Python 3.x
+- Required packages listed in requirements.txt
+- Financial news and stock price datasets
+
