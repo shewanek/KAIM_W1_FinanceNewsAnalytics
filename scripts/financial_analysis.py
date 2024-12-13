@@ -14,7 +14,7 @@ class FinancialAnalysis:
         """Load data from CSV file into dataframe"""
         self.df = pd.read_csv(filepath)
         return self
-    
+
     def explore_data(self):
         """Perform initial exploratory analysis focusing on key data quality aspects"""
         # Basic dataset info
@@ -22,7 +22,7 @@ class FinancialAnalysis:
         print("-" * 30)
         print(f"Number of records: {len(self.df)}")
         print(f"Columns: {', '.join(self.df.columns)}")
-        
+
         # Missing values check
         print("\nMissing Values:")
         print("-" * 30)
@@ -33,15 +33,15 @@ class FinancialAnalysis:
             'Missing %': missing_pct
         })
         print(missing_df[missing_df['Missing Count'] > 0])
-        
+
         # Duplicates check
         print("\nDuplicates:")
         print("-" * 30)
         duplicates = self.df.duplicated().sum()
         print(f"Duplicate rows: {duplicates} ({(duplicates/len(self.df))*100:.1f}%)")
-        
+
         # Check duplicates excluding Unnamed: 0 column
-     
+
         duplicates_excl = self.df.drop('Unnamed: 0', axis=1).duplicated().sum()
         print(f"\nDuplicates (excluding Unnamed: 0): {duplicates_excl} ({(duplicates_excl/len(self.df))*100:.1f}%)")
 
@@ -49,7 +49,7 @@ class FinancialAnalysis:
         print("\nNumerical Statistics:")
         print("-" * 30)
         print(self.df.describe())
-        
+
         # Categorical columns summary
         print("\nCategorical Columns:")
         print("-" * 30)
@@ -58,85 +58,85 @@ class FinancialAnalysis:
             print(f"Unique values: {self.df[col].nunique()}")
             print("Top 3 most common:")
             print(self.df[col].value_counts().head(3))
-        
+
         return self
-    
+
     def clean_data(self):
         """Clean and preprocess the dataset"""
         # Handle missing values first
         self.df = self.df.dropna(subset=['headline', 'stock', 'publisher'])  # Drop rows missing critical info
-        
+
         # Remove duplicate rows while keeping first occurrence
         self.df = self.df.drop_duplicates(subset=['headline', 'stock', 'date'], keep='first')
-        
+
         # Drop unnecessary columns
         if 'Unnamed: 0' in self.df.columns:
             self.df = self.df.drop('Unnamed: 0', axis=1)
-            
+
         # Convert and standardize date format
         self.df['date'] = pd.to_datetime(self.df['date'], errors='coerce')
         self.df = self.df.dropna(subset=['date'])  # Drop rows with invalid dates
-        
+
         # Clean text fields
         self.df['headline'] = self.df['headline'].apply(lambda x: x.strip() if isinstance(x, str) else x)
         self.df['headline'] = self.df['headline'].str.replace(r'\s+', ' ')  # Remove extra whitespace
-        
+
         self.df['publisher'] = (self.df['publisher'].str.strip()
                                                    .str.title()
                                                    .str.replace(r'\s+', ' '))
-        
+
         self.df['stock'] = (self.df['stock'].str.strip()
                                            .str.upper()
                                            .str.replace(r'[^\w\s]', ''))  # Remove special chars
-        
+
         self.df['url'] = (self.df['url'].str.strip()
                                        .str.lower())  # Standardize URLs to lowercase
-        
+
         # Remove rows with empty strings after cleaning
         self.df = self.df.replace('', pd.NA).dropna()
-        
+
         # Sort chronologically and reset index
         self.df = self.df.sort_values('date').reset_index(drop=True)
-        
+
         # Add derived features
         self.df['year'] = self.df['date'].dt.year
         self.df['month'] = self.df['date'].dt.month
         self.df['day_of_week'] = self.df['date'].dt.day_name()
         self.df['headline_length'] = self.df['headline'].str.len()
         self.df['hour'] = self.df['date'].dt.hour  # Capture time of day
-        
+
         return self
     def exploratory_analysis(self):
         """Perform initial exploratory analysis after data cleaning"""
         print("\n=== Exploratory Analysis ===")
-        
+
         # Basic dataset info
         print("\nDataset Shape:", self.df.shape)
         print(f"Date Range: {self.df['date'].min()} to {self.df['date'].max()}")
-        
+
         # Stock coverage
         print("\nTop 10 Most Covered Stocks:")
         print(self.df['stock'].value_counts().head(10))
-        
+
         # Publishing patterns
         print("\nArticles by Hour of Day:")
         hour_dist = self.df['hour'].value_counts().sort_index()
         print(hour_dist)
-        
+
         # Content analysis
         print("\nHeadline Length Summary:")
         print(self.df['headline_length'].describe())
-        
+
         # Publisher analysis
         print("\nNumber of Unique Publishers:", self.df['publisher'].nunique())
         print("\nTop 5 Publishers by Article Count:")
         print(self.df['publisher'].value_counts().head())
-        
+
         # Temporal patterns
         print("\nArticles by Day of Week:")
         day_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
         print(self.df['day_of_week'].value_counts().reindex(day_order))
-        
+
         return self
 
     def descriptive_statistics(self):
@@ -203,11 +203,11 @@ class FinancialAnalysis:
         Performs sentiment analysis on news headlines and visualizes the results
         """
         print("\nPerforming Sentiment Analysis...")
-        
+
         # Calculate sentiment scores and categories
         self.df['sentiment'] = self.df['headline'].apply(lambda x: TextBlob(x).sentiment.polarity)
-        self.df['sentiment_category'] = pd.cut(self.df['sentiment'], 
-            bins=[-1, -0.1, 0.1, 1], 
+        self.df['sentiment_category'] = pd.cut(self.df['sentiment'],
+            bins=[-1, -0.1, 0.1, 1],
             labels=['Negative', 'Neutral', 'Positive'])
 
         # Calculate and display sentiment distribution
@@ -224,7 +224,7 @@ class FinancialAnalysis:
         plt.xlabel('Sentiment Category')
         plt.ylabel('Count')
         plt.show()
-        
+
         # Convert dates to datetime and preserve timezone
         self.df['date'] = pd.to_datetime(self.df['date'])
         # Group by month while preserving timezone
@@ -264,20 +264,20 @@ class FinancialAnalysis:
         # Extract and visualize top terms for each topic
         feature_names = vectorizer.get_feature_names_out()
         n_top_words = 10
-        
+
         fig, axes = plt.subplots(2, 3, figsize=(15, 10))
         axes = axes.ravel()
-        
+
         for topic_idx, topic in enumerate(lda.components_):
             if topic_idx < n_topics:
                 top_words_idx = topic.argsort()[:-n_top_words-1:-1]
                 top_words = [feature_names[i] for i in top_words_idx]
                 top_weights = [topic[i] for i in top_words_idx]
-                
+
                 axes[topic_idx].barh(top_words, top_weights)
                 axes[topic_idx].set_title(f'Topic {topic_idx + 1}')
                 axes[topic_idx].invert_yaxis()
-        
+
         plt.tight_layout()
         plt.show()
 
@@ -290,11 +290,11 @@ class FinancialAnalysis:
         print("\nAnalyzing Key Financial Phrases...")
 
         financial_phrases = [
-            'price target', 'upgrade', 'downgrade', 'earnings', 
+            'price target', 'upgrade', 'downgrade', 'earnings',
             'FDA approval', 'merger', 'acquisition', 'IPO',
             'stock split', 'dividend', 'guidance', 'analyst rating'
         ]
-        
+
         # Calculate phrase frequencies
         phrase_counts = {}
         for phrase in financial_phrases:
@@ -321,7 +321,7 @@ class FinancialAnalysis:
         plt.show()
 
         return self
-    
+
     def analyze_publication_patterns(self):
         """
         Analyzes and visualizes temporal patterns in news publication frequency
@@ -333,28 +333,28 @@ class FinancialAnalysis:
 
         # Daily publication frequency
         daily_pubs = self.df.groupby(self.df['date'].dt.date).size()
-        
+
         # Hourly distribution
         hourly_pubs = self.df.groupby(self.df['date'].dt.hour).size()
-        
+
         # Day of week distribution
         dow_pubs = self.df.groupby(self.df['date'].dt.day_name()).size()
-        
+
         # Create subplots
         fig, axes = plt.subplots(3, 1, figsize=(12, 12))
-        
+
         # Plot daily trend
         daily_pubs.plot(ax=axes[0])
         axes[0].set_title('Daily Publication Frequency')
         axes[0].set_xlabel('Date')
         axes[0].set_ylabel('Number of Articles')
-        
+
         # Plot hourly distribution
         hourly_pubs.plot(kind='bar', ax=axes[1])
         axes[1].set_title('Hourly Publication Distribution')
         axes[1].set_xlabel('Hour of Day')
         axes[1].set_ylabel('Number of Articles')
-        
+
         # Plot day of week distribution
         dow_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
         dow_pubs = dow_pubs.reindex(dow_order)
@@ -362,19 +362,19 @@ class FinancialAnalysis:
         axes[2].set_title('Day of Week Publication Distribution')
         axes[2].set_xlabel('Day of Week')
         axes[2].set_ylabel('Number of Articles')
-        
+
         plt.tight_layout()
         plt.show()
-        
+
         # Print summary statistics
         print("\nPublication Pattern Statistics:")
         print(f"Average daily publications: {daily_pubs.mean():.1f}")
         print(f"Peak publishing hour: {hourly_pubs.idxmax()}:00")
         print(f"Most active day: {dow_pubs.idxmax()}")
         print(f"Least active day: {dow_pubs.idxmin()}")
-        
+
         return self
-    
+
     def analyze_publishers(self):
         """
         Analyzes publisher distribution and patterns in the dataset.
@@ -422,7 +422,7 @@ class FinancialAnalysis:
         print(f"Total unique publishers: {len(pub_counts)}")
         print(f"Total unique domains: {len(domain_counts)}")
         print(f"\nTop publishing domain: {domain_counts.index[0]} ({domain_counts.iloc[0]} articles)")
-        
+
         # Analyze content patterns by top publishers
         top_publishers = pub_counts.head(5).index
         print("\nContent Analysis for Top 5 Publishers:")
@@ -431,5 +431,5 @@ class FinancialAnalysis:
             print(f"\n{publisher}:")
             print(f"Total articles: {len(pub_df)}")
             print(f"Average headline length: {pub_df['headline'].str.len().mean():.1f} characters")
-            
+
         return self
