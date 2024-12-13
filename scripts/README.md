@@ -1,6 +1,6 @@
 # Financial Analysis Scripts
 
-This directory contains Python scripts for analyzing financial news data and generating insights.
+This directory contains Python scripts for analyzing financial news data and stock market data.
 
 ## financial_analysis.py
 
@@ -10,7 +10,7 @@ The `financial_analysis.py` script provides a comprehensive set of analysis tool
 ### Dependencies
 - pandas
 - matplotlib
-- seaborn 
+- seaborn
 - textblob
 - scikit-learn
 - numpy
@@ -40,42 +40,54 @@ The `financial_analysis.py` script provides a comprehensive set of analysis tool
 - Cleans text fields
 - Adds derived features like year, month, day of week
 
-#### exploratory_analysis()
-- Analyzes dataset shape and date range
-- Shows stock coverage and publishing patterns
-- Provides headline length and publisher summaries
+## quantitative_analysis.py
 
-#### descriptive_statistics()
-- Generates visualizations for headline lengths
-- Shows top publishers and article distributions
-- Displays monthly article trends
-- Provides detailed statistics
+### Overview
+The `quantitative_analysis.py` script provides tools for analyzing stock price data using technical and quantitative methods. It contains a main `StockEDA` class for exploratory data analysis.
 
-#### analyze_sentiment()
-- Performs sentiment analysis on headlines
-- Categorizes sentiment as positive/neutral/negative
-- Visualizes sentiment distribution and trends
+### Dependencies
+- pandas
+- numpy
+- matplotlib
+- talib
+- pynance
 
-#### extract_topics()
-- Performs topic modeling using LDA
-- Visualizes top words per topic
-- Shows topic distributions
+### Key Features
+- Stock price data loading and processing
+- Technical indicator calculations
+- Financial metric analysis
+- Data visualization
 
-#### analyze_key_phrases()
-- Analyzes common financial phrase frequencies
-- Visualizes phrase distributions
-- Tracks key financial terminology
+### Class Methods
 
-#### analyze_publication_patterns()
-- Examines temporal publishing patterns
-- Shows daily, hourly, and weekly distributions
-- Provides publishing pattern statistics
+#### load_data()
+- Loads stock price data from CSV files
+- Combines data from multiple stocks
+- Adds stock symbol identifiers
 
-#### analyze_publishers()
-- Analyzes publisher distribution
-- Shows top publishers by article count
-- Extracts email domains
-- Provides publisher content analysis
+#### data_descriptive()
+- Generates descriptive statistics
+- Calculates price and volume metrics
+- Provides per-stock summaries
 
+#### calculate_technical_indicators()
+- Calculates moving averages (SMA, EMA)
+- Generates MACD indicators
+- Computes RSI values
+- Calculates Bollinger Bands
 
+#### calculate_financial_metrics()
+- Computes volatility metrics
+- Calculates Sharpe ratio
+- Determines maximum drawdown
 
+#### plot_price_and_indicators()
+- Creates price charts with technical indicators
+- Shows MACD and RSI plots
+- Visualizes Bollinger Bands
+
+#### analyze_stock()
+- Performs comprehensive stock analysis
+- Generates technical indicators
+- Calculates financial metrics
+- Creates visualizations
