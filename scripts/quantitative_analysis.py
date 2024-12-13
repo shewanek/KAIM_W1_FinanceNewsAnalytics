@@ -110,4 +110,72 @@ class StockEDA:
 
         return descriptive_stats
 
-   
+    def calculate_technical_indicators(self):
+        """Calculate various technical indicators using TA-Lib
+
+        Returns:
+            pd.DataFrame: DataFrame with added technical indicators
+        """
+        if self.data is None:
+            raise ValueError("No data loaded. Call load_data() first.")
+
+        # Make sure data is sorted by date
+        self.data = self.data.sort_values('Date')
+
+        # Calculate Simple Moving Averages
+        self.data['SMA_20'] = talib.SMA(self.data['Close'], timeperiod=20)
+        self.data['SMA_50'] = talib.SMA(self.data['Close'], timeperiod=50)
+        self.data['SMA_200'] = talib.SMA(self.data['Close'], timeperiod=200)
+
+        # Calculate Exponential Moving Averages
+        self.data['EMA_12'] = talib.EMA(self.data['Close'], timeperiod=12)
+        self.data['EMA_26'] = talib.EMA(self.data['Close'], timeperiod=26)
+
+        # Calculate MACD
+        macd, macd_signal, macd_hist = talib.MACD(self.data['Close'])
+        self.data['MACD'] = macd
+        self.data['MACD_Signal'] = macd_signal
+        self.data['MACD_Hist'] = macd_hist
+
+        # Calculate RSI
+        self.data['RSI'] = talib.RSI(self.data['Close'], timeperiod=14)
+
+        # Calculate Bollinger Bands
+        upper, middle, lower = talib.BBANDS(self.data['Close'])
+        self.data['BB_Upper'] = upper
+        self.data['BB_Middle'] = middle
+        self.data['BB_Lower'] = lower
+
+        return self.data
+
+    def calculate_financial_metrics(self):
+        """Calculate key financial metrics using PyNance
+
+        Returns:
+            dict: Dictionary containing calculated financial metrics
+        """
+        if self.data is None:
+            raise ValueError("No data loaded. Call load_data() first.")
+
+        metrics = {}
+
+        # Calculate daily returns
+        self.data['Daily_Return'] = self.data['Close'].pct_change()
+
+        # Calculate volatility (standard deviation of returns)
+        metrics['volatility'] = self.data['Daily_Return'].std() * np.sqrt(252)  # Annualized
+
+        # Calculate Sharpe Ratio (assuming risk-free rate of 0.01)
+        risk_free_rate = 0.01
+        excess_returns = self.data['Daily_Return'] - risk_free_rate/252
+        metrics['sharpe_ratio'] = np.sqrt(252) * excess_returns.mean() / excess_returns.std()
+
+        # Calculate maximum drawdown
+        cum_returns = (1 + self.data['Daily_Return']).cumprod()
+        rolling_max = cum_returns.expanding().max()
+        drawdowns = cum_returns/rolling_max - 1
+        metrics['max_drawdown'] = drawdowns.min()
+
+        return metrics
+
+    
