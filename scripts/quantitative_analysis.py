@@ -247,3 +247,14 @@ class StockEDA:
             technical_data = technical_data[technical_data['stock_symbol'] == stock_symbol]
 
         return technical_data, financial_metrics
+
+    def save_to_csv(self, output_path="../data/processed_stock_data.csv"):
+        """
+        Save the processed DataFrame to a CSV file
+        """
+        # Ensure the data directory exists
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        # Save the dataframe to a CSV file
+        self.data.to_csv(output_path, index=False)
+        print(f"Data saved to {output_path}")
+        return self
