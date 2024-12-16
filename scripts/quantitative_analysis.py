@@ -196,33 +196,47 @@ class StockEDA:
         fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(15, 15), height_ratios=[3, 1, 1])
 
         # Plot price and moving averages
-        ax1.plot(plot_data['Date'], plot_data['Close'], label='Close Price')
-        ax1.plot(plot_data['Date'], plot_data['SMA_20'], label='20-day SMA')
-        ax1.plot(plot_data['Date'], plot_data['SMA_50'], label='50-day SMA')
-        ax1.plot(plot_data['Date'], plot_data['BB_Upper'], 'g--', label='BB Upper')
-        ax1.plot(plot_data['Date'], plot_data['BB_Lower'], 'r--', label='BB Lower')
-        ax1.set_title('Stock Price with Technical Indicators')
-        ax1.set_xlabel('Date')
-        ax1.set_ylabel('Price')
-        # ax1.legend()
-        ax1.grid(True)
+        ax1.plot(plot_data['Date'], plot_data['Close'], label='Close Price', linewidth=2)
+        ax1.plot(plot_data['Date'], plot_data['SMA_20'], label='20-day SMA', alpha=0.8)
+        ax1.plot(plot_data['Date'], plot_data['SMA_50'], label='50-day SMA', alpha=0.8)
+        ax1.plot(plot_data['Date'], plot_data['BB_Upper'], 'g--', label='BB Upper', alpha=0.6)
+        ax1.plot(plot_data['Date'], plot_data['BB_Lower'], 'r--', label='BB Lower', alpha=0.6)
+        ax1.fill_between(plot_data['Date'], plot_data['BB_Upper'], plot_data['BB_Lower'], alpha=0.1, color='gray')
+        ax1.set_title('Stock Price with Technical Indicators', fontsize=14, pad=20)
+        ax1.set_xlabel('Date', fontsize=12)
+        ax1.set_ylabel('Price', fontsize=12)
+        ax1.legend(loc='upper left', bbox_to_anchor=(1, 1))
+        ax1.grid(True, alpha=0.3)
 
         # Plot MACD
-        ax2.plot(plot_data['Date'], plot_data['MACD'], label='MACD')
-        ax2.plot(plot_data['Date'], plot_data['MACD_Signal'], label='Signal Line')
-        ax2.bar(plot_data['Date'], plot_data['MACD_Hist'], label='MACD Histogram')
-        ax2.set_title('MACD')
-        # ax2.legend()
-        ax2.grid(True)
+        ax2.plot(plot_data['Date'], plot_data['MACD'], label='MACD', linewidth=2)
+        ax2.plot(plot_data['Date'], plot_data['MACD_Signal'], label='Signal Line', linewidth=1.5)
+        colors = ['g' if x >= 0 else 'r' for x in plot_data['MACD_Hist']]
+        ax2.bar(plot_data['Date'], plot_data['MACD_Hist'], label='MACD Histogram', color=colors, alpha=0.5)
+        ax2.set_title('MACD (Moving Average Convergence Divergence)', fontsize=14, pad=20)
+        ax2.set_ylabel('MACD Value', fontsize=12)
+        ax2.legend(loc='upper left', bbox_to_anchor=(1, 1))
+        ax2.grid(True, alpha=0.3)
 
         # Plot RSI
-        ax3.plot(plot_data['Date'], plot_data['RSI'], label='RSI')
-        ax3.axhline(y=70, color='r', linestyle='--')
-        ax3.axhline(y=30, color='g', linestyle='--')
-        ax3.set_title('RSI')
-        ax3.set_ylabel('RSI')
-        # ax3.legend()
-        ax3.grid(True)
+        ax3.plot(plot_data['Date'], plot_data['RSI'], label='RSI', linewidth=2, color='purple')
+        ax3.axhline(y=70, color='r', linestyle='--', label='Overbought (70)')
+        ax3.axhline(y=30, color='g', linestyle='--', label='Oversold (30)')
+        ax3.fill_between(plot_data['Date'], 70, plot_data['RSI'].where(plot_data['RSI'] >= 70),
+                        color='red', alpha=0.2)
+        ax3.fill_between(plot_data['Date'], 30, plot_data['RSI'].where(plot_data['RSI'] <= 30),
+                        color='green', alpha=0.2)
+        ax3.set_title('RSI (Relative Strength Index)', fontsize=14, pad=20)
+        ax3.set_ylabel('RSI Value', fontsize=12)
+        ax3.set_ylim(0, 100)
+        ax3.legend(loc='upper left', bbox_to_anchor=(1, 1))
+        ax3.grid(True, alpha=0.3)
+
+        # Add title for the entire figure
+        if stock_symbol:
+            fig.suptitle(f'Technical Analysis for {stock_symbol}', fontsize=16, y=1.02)
+        else:
+            fig.suptitle('Technical Analysis Overview', fontsize=16, y=1.02)
 
         plt.tight_layout()
         plt.show()
@@ -247,3 +261,14 @@ class StockEDA:
             technical_data = technical_data[technical_data['stock_symbol'] == stock_symbol]
 
         return technical_data, financial_metrics
+
+    def save_to_csv(self, output_path="../data/processed_stock_data.csv"):
+        """
+        Save the processed DataFrame to a CSV file
+        """
+        # Ensure the data directory exists
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        # Save the dataframe to a CSV file
+        self.data.to_csv(output_path, index=False)
+        print(f"Data saved to {output_path}")
+        return self
