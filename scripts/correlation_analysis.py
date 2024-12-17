@@ -140,36 +140,3 @@ class NewsStockCorrelation:
         plt.show()
 
 
-
-
-
-    def generate_report(self, output_path="correlation_analysis_report.txt"):
-        """Generate a summary report of the correlation analysis"""
-        results = self.merge_and_analyze()
-
-        report = [
-            "News Sentiment vs Stock Returns Analysis Report",
-            "=" * 50,
-            f"\nNumber of observations: {results['n_observations']}",
-            f"\nCorrelation coefficient: {results['correlation_coefficient']:.4f}",
-            f"P-value: {results['p_value']:.4f}",
-            "\nInterpretation:",
-            "-" * 20
-        ]
-
-        # Add interpretation
-        if results['p_value'] < 0.05:
-            report.append("Statistically significant correlation found")
-            if results['correlation_coefficient'] > 0:
-                report.append("Positive correlation: Higher sentiment associated with higher returns")
-            else:
-                report.append("Negative correlation: Higher sentiment associated with lower returns")
-        else:
-            report.append("No statistically significant correlation found")
-
-        # Save report
-        with open(output_path, 'w') as f:
-            f.write('\n'.join(report))
-
-        print(f"Report saved to {output_path}")
-        return report
