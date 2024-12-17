@@ -74,4 +74,34 @@ class NewsStockCorrelation:
                                 how='inner')
         return self.merged_df
 
-    
+    def calculate_sentiment_scores(self):
+        """Calculate sentiment scores for news headlines using TextBlob"""
+        if self.news_df is None:
+            raise ValueError("News data not loaded. Call load_data() first.")
+
+        def get_sentiment(text):
+            return TextBlob(str(text)).sentiment.polarity
+
+        self.news_df['sentiment_score'] = self.news_df['headline'].apply(get_sentiment)
+
+        # Aggregate sentiment scores by date
+        daily_sentiment = self.news_df.groupby('Date')['sentiment_score'].agg(['mean', 'count']).reset_index()
+        daily_sentiment.columns = ['Date', 'avg_sentiment', 'article_count']
+
+        return daily_sentiment
+
+    def calculate_stock_returns(self):
+        """Calculate daily stock returns"""
+        if self.stock_df is None:
+            raise ValueError("Stock data not loaded. Call load_data() first.")
+
+        # Calculate daily returns
+        self.stock_df['daily_return'] = self.stock_df.groupby('stock_symbol')['Close'].pct_change()
+
+        # Aggregate returns by date if multiple stocks
+        daily_returns = self.stock_df.groupby('Date')['daily_return'].mean().reset_index()
+
+        return daily_returns
+
+
+
