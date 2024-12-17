@@ -45,26 +45,24 @@ Task 2: Stock Price Analysis
   - Technical indicator plots
   - Performance metric graphs
 
-
-
-## Requirements
-- Python 3.x
-- Key packages:
-  - pandas
-  - numpy
-  - textblob
-  - sklearn
-  - talib
-  - pynance
-  - matplotlib
-  - seaborn
-
+### 3. correlation_eda.ipynb
+Task 3: Correlation Analysis
+- Data Loading and Preparation:
+  - Stock price OHLCV data processing
+  - Time series alignment
+- Correlation Analysis:
+  - Pearson correlation coefficient calculation
+  - P-value calculation
+- Visualizations:
+  - Scatter plot of sentiment scores vs. daily stock returns
+  - Bar plot of correlation coefficients
 
 ## Expected Outputs
-- Comprehensive news data analysis
-- Technical and quantitative market analysis
-- Data visualizations and insights
-- Trading implications and patterns
+- In-depth analysis of news data with descriptive statistics
+- Detailed technical and quantitative analysis of stock market data
+- Engaging data visualizations and actionable insights
+- Identification of trading patterns and implications for decision-making
+
 =======
 
 ## Requirements

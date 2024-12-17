@@ -91,3 +91,48 @@ The `quantitative_analysis.py` script provides tools for analyzing stock price d
 - Generates technical indicators
 - Calculates financial metrics
 - Creates visualizations
+
+
+## correlation_analysis.py
+
+### Overview
+The `correlation_analysis.py` script provides tools for analyzing the correlation between news sentiment and stock movements. It contains a main `NewsStockCorrelation` class for correlation analysis.
+
+### Dependencies
+- pandas
+- numpy
+- textblob
+- scipy
+- matplotlib
+- seaborn
+### Class Methods
+
+#### load_data()
+- Loads news and stock data from CSV files
+- Aligns data by date and stock symbol
+- Calculates daily stock returns
+
+#### align_data()
+- Merges news and stock data on date and stock symbol
+- Ensures data is ready for correlation analysis
+
+#### calculate_sentiment_scores()
+- Computes sentiment scores for news headlines
+- Aggregates sentiment scores by date
+
+#### calculate_stock_returns()
+- Calculates daily stock returns for each stock
+- Aggregates returns by date
+
+#### calculate_correlation()
+- Computes Pearson correlation coefficient between sentiment and stock returns
+- Returns correlation results for each stock
+
+#### plot_correlation()
+- Visualizes the correlation results using bar plots
+- Displays correlation coefficients for each stock symbol
+
+#### scatter_plot()
+- Creates scatter plots of sentiment scores vs. daily stock returns
+- Visualizes relationships between sentiment and stock performance
+

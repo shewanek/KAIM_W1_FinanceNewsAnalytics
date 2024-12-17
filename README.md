@@ -27,14 +27,7 @@ The Financial News and Stock Price Integration Dataset (FNSPID) contains:
 - Publisher analysis
 - Temporal trend analysis
 
-## Getting Started
-1. Clone the repository
-`https://github.com/shewanek/KAIM_W1_FinanceNewsAnalytics.git`
-2. Install required dependencies:
 
-`pip install -r requirements.txt`
-
-3. Run the Jupyter notebooks in the `notebooks/` directory
 
 ## Initial Findings
 - Dataset contains 1.4M records with 845K unique headlines
@@ -66,18 +59,52 @@ The Financial News and Stock Price Integration Dataset (FNSPID) contains:
 - Technical indicators provide confirmation of news-based signals
 - Certain news categories have stronger price impact
 
+### Task 3: Correlation Analysis
+
+### Overview
+The correlation analysis focuses on understanding the relationship between news sentiment and stock price movements. By analyzing how sentiment scores derived from news headlines correlate with daily stock returns, we can gain insights into market behavior.
+
+### Analysis Components
+1. Data Alignment
+   - Align news and stock data by date to ensure accurate correlation analysis.
+   - Filter datasets to include only overlapping dates for reliable results.
+
+2. Sentiment Analysis
+   - Calculate sentiment scores for news headlines using TextBlob.
+   - Aggregate sentiment scores by date to analyze trends over time.
+
+3. Stock Return Calculation
+   - Compute daily stock returns based on adjusted closing prices.
+   - Analyze the percentage change in stock prices to assess performance.
+
+4. Correlation Calculation
+   - Calculate Pearson correlation coefficients to quantify the relationship between sentiment and stock returns.
+   - Identify stocks with the strongest and weakest correlations.
+
+5. Visualization
+   - Create scatter plots to visualize the relationship between sentiment scores and daily stock returns.
+   - Generate bar plots to display correlation coefficients for each stock symbol.
+
+### Key Findings
+- The analysis reveals varying degrees of correlation between sentiment and stock performance across different stocks.
+- Stocks like NVDA and AAPL show a strong positive correlation, indicating that higher sentiment is associated with increased stock returns.
+- Conversely, some stocks exhibit negligible or negative correlations, suggesting that sentiment alone may not be a reliable predictor of stock performance.
+- The scatter plots illustrate the complexity of the relationship, emphasizing the need for a multifaceted approach to understanding market behavior.
+
+## Getting Started
+1. Clone the repository
+`https://github.com/shewanek/KAIM_W1_FinanceNewsAnalytics.git`
+2. Install required dependencies:
+
+`pip install -r requirements.txt`
+
+3. Run the Jupyter notebooks in the `notebooks/` directory
 
 
-## Dependencies
-- Python 3.8+
-- pandas
-- numpy
-- scikit-learn
-- nltk
-- matplotlib
-- seaborn
-- TA-Lib
-- PyNance
+## Requirements
+- Python 3.x
+- Required packages listed in requirements.txt
+- Financial news and stock price datasets
 
 
 
