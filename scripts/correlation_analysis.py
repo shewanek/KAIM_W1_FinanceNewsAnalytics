@@ -55,6 +55,10 @@ class NewsStockCorrelation:
             # Filter stock data to match news dates
             self.stock_df = self.stock_df[self.stock_df['Date'].isin(self.news_df['Date'])]
 
+            # Calculate daily stock returns
+            self.stock_df['daily_return'] = self.stock_df.groupby('stock_symbol')['Adj Close'].pct_change()
+
+
             print("Data loaded and aligned successfully")
             return self.news_df, self.stock_df
 
@@ -105,3 +109,67 @@ class NewsStockCorrelation:
 
 
 
+
+
+    def calculate_correlation(self):
+        # Calculate Pearson correlation coefficient
+        correlation_results = self.merged_df.groupby('stock_symbol').apply(
+            lambda merged_df: pearsonr(merged_df['sentiment'], merged_df['daily_return'])[0]
+        )
+        return correlation_results
+
+    def plot_correlation(self, correlation_results):
+        # Plot the correlation results
+        plt.figure(figsize=(12, 6))
+        sns.barplot(x=correlation_results.index, y=correlation_results.values, palette='coolwarm')
+        plt.title('Correlation between Sentiment and Stock Returns')
+        plt.xlabel('Stock Symbol')
+        plt.ylabel('Pearson Correlation Coefficient')
+        plt.axhline(0, color='gray', linestyle='--')
+        plt.show()
+
+    def scatter_plot(self):
+        # Scatter plot of sentiment scores vs. daily stock returns
+        plt.figure(figsize=(12, 6))
+        sns.scatterplot(x='sentiment', y='daily_return', hue='stock_symbol', data=self.merged_df, palette='deep')
+        plt.title('Sentiment Scores vs. Daily Stock Returns')
+        plt.xlabel('Sentiment Scores')
+        plt.ylabel('Daily Stock Returns')
+        plt.axhline(0, color='gray', linestyle='--')
+        plt.axvline(0, color='gray', linestyle='--')
+        plt.show()
+
+
+
+
+
+    def generate_report(self, output_path="correlation_analysis_report.txt"):
+        """Generate a summary report of the correlation analysis"""
+        results = self.merge_and_analyze()
+
+        report = [
+            "News Sentiment vs Stock Returns Analysis Report",
+            "=" * 50,
+            f"\nNumber of observations: {results['n_observations']}",
+            f"\nCorrelation coefficient: {results['correlation_coefficient']:.4f}",
+            f"P-value: {results['p_value']:.4f}",
+            "\nInterpretation:",
+            "-" * 20
+        ]
+
+        # Add interpretation
+        if results['p_value'] < 0.05:
+            report.append("Statistically significant correlation found")
+            if results['correlation_coefficient'] > 0:
+                report.append("Positive correlation: Higher sentiment associated with higher returns")
+            else:
+                report.append("Negative correlation: Higher sentiment associated with lower returns")
+        else:
+            report.append("No statistically significant correlation found")
+
+        # Save report
+        with open(output_path, 'w') as f:
+            f.write('\n'.join(report))
+
+        print(f"Report saved to {output_path}")
+        return report
